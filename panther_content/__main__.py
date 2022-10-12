@@ -1,0 +1,2 @@
+from panther_content.rules import converted_brute_force_by_ip
+
