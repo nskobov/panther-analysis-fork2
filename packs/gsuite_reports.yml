@@ -7,8 +7,6 @@ PackDefinition:
     - GSuite.DocOwnershipTransfer
     - GSuite.Drive.ExternalFileShare
     - GSuite.DriveOverlyVisible
-    - GSuite.DriveVisiblityChanged
-    - GSuite.ExternalMailForwarding
     - GSuite.GoogleAccess
     - GSuite.GovernmentBackedAttack
     - GSuite.GroupBannedUser

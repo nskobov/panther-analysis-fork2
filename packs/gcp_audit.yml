@@ -8,5 +8,4 @@ PackDefinition:
     - GCP.IAM.CorporateEmail
     - GCP.IAM.CustomRoleChanges
     - GCP.SQL.ConfigChanges
-    - GCP.UnusedRegions
 DisplayName: Panther GCP Audit Pack
