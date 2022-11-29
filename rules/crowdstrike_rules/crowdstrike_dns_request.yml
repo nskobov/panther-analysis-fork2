@@ -2,11 +2,12 @@ AnalysisType: rule
 Filename: crowdstrike_dns_request.py
 RuleID: Crowdstrike.DNS.Request
 DisplayName: DNS request to denylisted domain
-Enabled: true
+Enabled: false
 LogTypes:
   - Crowdstrike.DNSRequest
 Tags:
   - Crowdstrike
+  - Configuration Required
   - Initial Access:Phishing
 Severity: Critical
 Reports:
