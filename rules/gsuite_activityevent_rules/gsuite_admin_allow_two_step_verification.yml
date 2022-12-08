@@ -1,0 +1,117 @@
+AnalysisType: rule
+Filename: gsuite_admin_allow_two_step_verification.py
+RuleID: GSuite.Admin.Allow.Two.Step.Verification
+DisplayName: GSuite 2-Step Verification Setting Modification
+Enabled: true
+LogTypes:
+  - GSuite.ActivityEvent
+Tags:
+  - GSuite
+Reports:
+  MITRE ATT&CK:
+    - TA0005:T1556
+Severity: Medium
+Description: >
+  An admin modified 2-step verification for GSuite
+Reference: https://developers.google.com/admin-sdk/reports/v1/appendix/activity/admin-security-settings
+Runbook: >
+  Validate the changes made to 2-step verification
+SummaryAttributes:
+  - actor:email
+Tests:
+  -
+    Name: 2-step Verification (Org)
+    ExpectedResult: True
+    Log:
+      {
+        "actor": {
+          "email": "example@example.io",
+          "profileId": "1142346342019059887675"
+        },
+        "id": {
+          "applicationName": "admin",
+          "customerId": "D045x8dnk",
+          "time": "2022-08-24 20:30:23.528000000",
+          "uniqueQualifier": "1481567848835264881"
+        },
+        "kind": "admin#reports#activity",
+        "name": "ALLOW_STRONG_AUTHENTICATION",
+        "parameters": {
+          "NEW_VALUE": "true",
+          "OLD_VALUE": "INHERIT_FROM_PARENT",
+          "ORG_UNIT_NAME": "SSO"
+        },
+        "type": "SECURITY_SETTINGS"
+      }
+  -
+    Name: 2-step Verification (Domain)
+    ExpectedResult: True
+    Log:
+      {
+        "actor": {
+          "email": "example@example.io",
+          "profileId": "1142346342019059887675"
+        },
+        "id": {
+          "applicationName": "admin",
+          "customerId": "D045x8dnk",
+          "time": "2022-08-24 20:30:23.528000000",
+          "uniqueQualifier": "1481567848835264881"
+        },
+        "kind": "admin#reports#activity",
+        "name": "ALLOW_STRONG_AUTHENTICATION",
+        "parameters": {
+          "NEW_VALUE": "true",
+          "OLD_VALUE": "INHERIT_FROM_PARENT",
+          "DOMAIN_NAME": "example.io"
+        },
+        "type": "SECURITY_SETTINGS"
+      }
+  -
+    Name: Missing OU or Domain
+    ExpectedResult: True
+    Log:
+      {
+        "actor": {
+          "email": "example@example.io",
+          "profileId": "1142346342019059887675"
+        },
+        "id": {
+          "applicationName": "admin",
+          "customerId": "D045x8dnk",
+          "time": "2022-08-24 20:30:23.528000000",
+          "uniqueQualifier": "1481567848835264881"
+        },
+        "kind": "admin#reports#activity",
+        "name": "ALLOW_STRONG_AUTHENTICATION",
+        "parameters": {
+          "NEW_VALUE": "true",
+          "OLD_VALUE": "INHERIT_FROM_PARENT"
+        },
+        "type": "SECURITY_SETTINGS"
+      }
+  -
+    Name: Unrelated Change
+    ExpectedResult: False
+    Log:
+      {
+        "actor": {
+          "email": "example@example.io",
+          "profileId": "116399443621884258589"
+        },
+        "id": {
+          "applicationName": "admin",
+          "customerId": "D045x8dnk",
+          "time": "2022-07-08 16:24:06.015000000",
+          "uniqueQualifier": "1481567848835264881"
+        },
+        "kind": "admin#reports#activity",
+        "name": "ADD_TO_TRUSTED_OAUTH2_APPS",
+        "parameters": {
+          "OAUTH2_APP_ID": "1234-example.apps.googleusercontent.com",
+          "OAUTH2_APP_NAME": "Example App",
+          "OAUTH2_APP_TYPE": "WEB_CLIENT",
+          "ORG_UNIT_NAME": "example.io"
+        },
+        "type": "SECURITY_SETTINGS"
+      }
