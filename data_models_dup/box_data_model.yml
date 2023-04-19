@@ -1,0 +1,14 @@
+AnalysisType: datamodel
+LogTypes: 
+  - CiscoUmbrella.CloudFirewall
+DataModelID: "Standard.Box.Event.2"
+DisplayName: "Box Events"
+Filename: box_data_model.py
+Enabled: true
+Mappings:
+  - Name: actor_user
+    Path: $.created_by.name
+  - Name: event_type
+    Method: get_event_type
+  - Name: source_ip
+    Path: ip_address
