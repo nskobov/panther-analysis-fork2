@@ -3,9 +3,9 @@ import re
 from panther_base_helpers import crowdstrike_process_alert_context
 
 CREDENTIAL_STRINGS = {
-    r".+:.+@",  # username:password@
-    r"-u\s.+\:.+",  # -u username:password
-    r"--user(\s|\=).+\s--password(\s|\=).+",  # --user=username --password=password"
+    r".+:.+@",  # username:password@ used in FTP calls
+    r"-u\s.+\:.+",  # -u username:password used in curl
+    r"--user(\s|\=).+\s--password(\s|\=).+",  # --user=username --password=password" used in wget
 }
 
 
@@ -26,4 +26,8 @@ def title(event):
 
 
 def alert_context(event):
-    return crowdstrike_process_alert_context(event)
+    # remove the CommandLine from alert_context to reduce exposure of offending command
+    context = crowdstrike_process_alert_context(event)
+    if context.get("CommandLine"):
+        del context["CommandLine"]
+    return context
