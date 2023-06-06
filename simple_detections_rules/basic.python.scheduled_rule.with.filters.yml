@@ -1,0 +1,23 @@
+AnalysisType: scheduled_rule
+RuleID: 'basic.python.scheduled_rule.with.filters'
+Filename: basic.python.scheduled_rule.with.filters.py
+InlineFilters:
+  - PathSpecifier: actionName
+    Condition: Equals
+    Value: Beans
+DedupPeriodMinutes: 60
+DisplayName: 'basic.python.scheduled_rule.with.filters'
+Enabled: true
+ScheduledQueries:
+  - MyQuery
+Severity: Medium
+Tests:
+  - Name: wrong userAgent
+    ExpectedResult: false
+    Log: { 'userAgent': 'John', 'actionName': 'Beans' }
+  - Name: wrong actionName
+    ExpectedResult: false
+    Log: { 'userAgent': 'Max', 'actionName': 'bananas' }
+  - Name: alerts
+    ExpectedResult: true
+    Log: { 'userAgent': 'Max', 'actionName': 'Beans' }
