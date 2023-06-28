@@ -57,6 +57,7 @@ fmt:
 
 install:
 	pipenv sync --dev
+	pipenv install --skip-lock pytz==2023.3
 
 test: global-helpers-unit-test
 	pipenv run panther_analysis_tool test
