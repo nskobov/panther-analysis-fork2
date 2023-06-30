@@ -18,8 +18,8 @@ moto = ">=4.1"
 [packages]
 policyuniverse = "==1.5.0.20220613"
 requests = "~=2.27"
-panther-analysis-tool = "~=0.22.3"
 moto = "*"
+panther-analysis-tool = {editable = true, path = "./../pat"}
 
 [requires]
 python_version = "3.9"

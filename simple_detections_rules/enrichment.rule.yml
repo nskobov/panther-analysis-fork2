@@ -1,0 +1,16 @@
+AnalysisType: rule
+LogTypes:
+  - AWS.VPCFlow
+RuleID: enrichment.rule
+Enabled: true
+Severity: High
+Detection:
+  # - Enrichment:
+  #     Table: ipinfo_location
+  #     SelectorPath: srcAddr
+  #     Field: city
+  #   Condition: DoesNotEqual
+  #   Value: Boo
+  - Key: noErichmentYet
+    Condition: Equals
+    Value: True

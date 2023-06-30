@@ -1,12 +1,15 @@
 AnalysisType: scheduled_rule
-RuleID: 'basic.python.scheduled_rule.with.filters'
-Filename: basic.python.scheduled_rule.with.filters.py
+RuleID: 'basic.scheduled_rule.with.filters'
+Detection:
+  - Key: userAgent
+    Condition: Equals
+    Value: Max
 InlineFilters:
-  - PathSpecifier: actionName
+  - KeyPath: actionName
     Condition: Equals
     Value: Beans
 DedupPeriodMinutes: 60
-DisplayName: 'basic.python.scheduled_rule.with.filters'
+DisplayName: 'basic.scheduled_rule.with.filters'
 Enabled: true
 ScheduledQueries:
   - MyQuery
