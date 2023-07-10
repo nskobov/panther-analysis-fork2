@@ -1,0 +1,28 @@
+{
+  "AnalysisType": "rule",
+  "RuleID": "basic.rule.json",
+  "Filename": "basic.python.rule.py",
+  "DedupPeriodMinutes": 60,
+  "DisplayName": "basic.rule.json",
+  "Enabled": true,
+  "LogTypes": [
+    "Panther.Audit"
+  ],
+  "Severity": "Medium",
+  "Tests": [
+    {
+      "Name": "wrong userAgent",
+      "ExpectedResult": false,
+      "Log": {
+        "userAgent": "John"
+      }
+    },
+    {
+      "Name": "alerts",
+      "ExpectedResult": true,
+      "Log": {
+        "userAgent": "Max"
+      }
+    }
+  ]
+}
