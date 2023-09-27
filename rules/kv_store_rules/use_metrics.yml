@@ -1,0 +1,18 @@
+AnalysisType: rule
+Filename: use_metrics.py
+RuleID: "use_metrics"
+DisplayName: "use_metrics"
+Enabled: true
+LogTypes:
+  - AWS.CloudTrail
+  - AWS.VPCFlow
+Severity: Medium
+Tests:
+  - Name: test1
+    ExpectedResult: false
+    Log: {}
+    Mocks:
+      - objectName: put_string_set
+        returnValue: "{}"
+      - objectName: get_string_set
+        returnValue: "{}"

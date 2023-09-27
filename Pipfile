@@ -19,6 +19,7 @@ moto = ">=4.1"
 policyuniverse = "==1.5.0.20220613"
 requests = "~=2.27"
 moto = "*"
+panther-detection-helpers = {editable = true, path = "./../panther_detection_helpers"}
 panther-analysis-tool = {editable = true, path = "./../pat"}
 
 [requires]

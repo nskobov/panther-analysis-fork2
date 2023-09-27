@@ -1,0 +1,9 @@
+AnalysisType: rule
+Filename: kv_store_rule_read_a_lot.py
+RuleID: "kv_store_rule_3"
+DisplayName: "kv_store_rule_3"
+Enabled: true
+LogTypes:
+  - AWS.CloudTrail
+  - AWS.VPCFlow
+Severity: Medium
