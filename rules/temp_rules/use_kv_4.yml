@@ -1,0 +1,8 @@
+AnalysisType: rule
+RuleID: use_kv_4
+Enabled: true
+LogTypes:
+  - AWS.CloudTrail
+  - AWS.VPCFlow
+Filename: use_kv_1.py
+Severity: High
