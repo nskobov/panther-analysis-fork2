@@ -22,6 +22,8 @@ With Panther, teams can define detections as code and programmatically upload th
 
 We welcome all contributions! Please read the [contributing guidelines](https://github.com/panther-labs/panther-analysis/blob/master/CONTRIBUTING.md) before submitting pull requests.
 
+ test
+
 # Quick Start
 
 ## Clone the repository
