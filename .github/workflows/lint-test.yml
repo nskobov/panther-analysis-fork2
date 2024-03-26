@@ -42,5 +42,8 @@ jobs:
       - name: make lint
         run: make lint
 
+      - name: update
+        run: make deps-update
+
       - name: make test
         run: make test
