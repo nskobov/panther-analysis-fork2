@@ -42,5 +42,14 @@ jobs:
       - name: make lint
         run: make lint
 
+      - name: updatedev
+        run: pipenv update panther_analysis_tool --dev
+
+      - name: update
+        run: pipenv update panther_analysis_tool
+
+      - name: cat pipfile
+        run: cat Pipfile.lock
+
       - name: make test
         run: make test
