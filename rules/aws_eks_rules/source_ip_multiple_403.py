@@ -1,6 +1,6 @@
 from ipaddress import ip_address
 
-from panther_base_helpers import eks_panther_obj_ref
+from panther_aws_helpers import eks_panther_obj_ref
 
 
 # Alert if
@@ -18,7 +18,7 @@ def rule(event):
     if not event.get("requestURI", "").startswith(("/api/", "/apis/")):
         return False
     p_eks = eks_panther_obj_ref(event)
-    if ip_address(p_eks.get("sourceIPs")[0]).is_private:
+    if not ip_address(p_eks.get("sourceIPs")[0]).is_global:
         return False
     return True
 

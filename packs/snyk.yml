@@ -16,5 +16,6 @@ PackDefinition:
     - Snyk.User.Management
     # Globals
     - global_filter_snyk
-    - panther_base_helpers
+
     - panther_snyk_helpers
+

@@ -1,5 +1,4 @@
 from global_filter_notion import filter_include_event
-from panther_base_helpers import deep_get
 from panther_notion_helpers import notion_alert_context
 
 
@@ -7,16 +6,16 @@ def rule(event):
     if not filter_include_event(event):
         return False
     return (
-        deep_get(event, "type", default="<NO_EVENT_TYPE_FOUND>")
+        event.deep_get("event", "type", default="<NO_EVENT_TYPE_FOUND>")
         == "workspace.settings.enforce_saml_sso_config_updated"
     )
 
 
 def title(event):
-    user = deep_get(event, "actor", "person", "email", default="<NO_USER_FOUND>")
-    workspace_id = deep_get(event, "workspace_id", default="<NO_WORKSPACE_ID_FOUND>")
-    state = deep_get(
-        event,
+    user = event.deep_get("event", "actor", "person", "email", default="<NO_USER_FOUND>")
+    workspace_id = event.deep_get("event", "workspace_id", default="<NO_WORKSPACE_ID_FOUND>")
+    state = event.deep_get(
+        "event",
         "workspace.settings.enforce_saml_sso_config_updated",
         "state",
         default="<NO_STATE_FOUND>",
@@ -25,18 +24,18 @@ def title(event):
     if state == "enabled":
         return (
             f"Notion User [{user}] updated settings to enable SAML SSO config "
-            f"for workspace id {workspace_id}"
+            f"from workspace id {workspace_id}"
         )
 
     return (
         f"Notion User [{user}] updated settings to disable SAML SSO config "
-        f"for workspace id {workspace_id}"
+        f"from workspace id {workspace_id}"
     )
 
 
 def severity(event):
-    state = deep_get(
-        event,
+    state = event.deep_get(
+        "event",
         "workspace.settings.enforce_saml_sso_config_updated",
         "state",
         default="<NO_STATE_FOUND>",

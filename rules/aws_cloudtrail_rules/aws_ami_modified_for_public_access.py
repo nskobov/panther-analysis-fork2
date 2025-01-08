@@ -1,5 +1,4 @@
-from panther_base_helpers import aws_rule_context, deep_get
-from panther_default import aws_cloudtrail_success
+from panther_aws_helpers import aws_cloudtrail_success, aws_rule_context
 
 
 def rule(event):
@@ -7,8 +6,8 @@ def rule(event):
     if not aws_cloudtrail_success(event) or event.get("eventName") != "ModifyImageAttribute":
         return False
 
-    added_perms = deep_get(
-        event, "requestParameters", "launchPermission", "add", "items", default=[]
+    added_perms = event.deep_get(
+        "requestParameters", "launchPermission", "add", "items", default=[]
     )
 
     for item in added_perms:

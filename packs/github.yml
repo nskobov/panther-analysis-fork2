@@ -5,19 +5,22 @@ DisplayName: "Panther GitHub Audit Pack"
 PackDefinition:
   IDs:
     - GitHub.Advanced.Security.Change
+    - GitHub.Advanced.Security.Change.NOT.FOLLOWED.BY.Repo.Archived
     - GitHub.Branch.PolicyOverride
     - GitHub.Branch.ProtectionDisabled
     - GitHub.Org.AuthChange
     - GitHub.Org.IpAllowlist
     - GitHub.Org.Moderators.Add
     - GitHub.Org.Modified
+    - Github.Repo.Archived
     - Github.Repo.CollaboratorChange
     - Github.Repo.Created
-    - GitHub.Repo.HookModified
     - GitHub.Repo.InitialAccess
     - Github.Repo.VisibilityChange
+    - Github.Repo.VulnerabilityDismissed
     - GitHub.Secret.Scanning.Alert.Created
     - GitHub.Team.Modified
+    - GitHub.Webhook.Modified
     - GitHub.User.AccessKeyCreated
     - GitHub.User.RoleUpdated
     - Github.Organization.App.Integration.Installed
@@ -26,7 +29,7 @@ PackDefinition:
     # Data model
     - Standard.Github.Audit
     # Globals
-    - panther_base_helpers
+    - panther_github_helpers
     - panther_event_type_helpers
-    - panther_oss_helpers
     - global_filter_github
+

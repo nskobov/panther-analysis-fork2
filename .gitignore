@@ -45,6 +45,9 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
+# Node modules
+node_modules/
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -67,5 +70,12 @@ dist/
 # Jetbrains
 .idea
 
+# VSCode
+.vscode/launch.json
+.vscode/settings.json
+
 #mac files
 .DS_Store
+
+# panther settings
+.panther_settings.yml

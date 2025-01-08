@@ -6,7 +6,7 @@ def get_dns_query(event):
     # Domain Names from Crowdstrike FDR end with a trailing period, such as google.com.
     domain = deep_get(event, "event", "DomainName", default=None)
     if domain:
-        domain = domain.rstrip(".").lower()
+        domain = domain.rstrip(".")
     return domain
 
 
@@ -16,6 +16,9 @@ def get_process_name(event):
     # Win = \Device\HarddiskVolume2\Windows\System32\winlogon.exe
     # Lin = /usr/bin/run-parts
     # Mac = /usr/libexec/xpcproxy
+    image_fn = deep_get(event, "event", "ImageFileName")
+    if not image_fn:
+        return None  # Explicitly return None if the key DNE
     if platform == "Win":
-        return deep_get(event, "event", "ImageFileName").split("\\")[-1]
-    return deep_get(event, "event", "ImageFileName").split("/")[-1]
+        return image_fn.split("\\")[-1]
+    return image_fn.split("/")[-1]

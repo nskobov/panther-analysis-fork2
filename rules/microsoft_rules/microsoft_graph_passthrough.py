@@ -1,8 +1,10 @@
-from panther_base_helpers import msft_graph_alert_context
+from panther_msft_helpers import msft_graph_alert_context
 
 
 def rule(event):
-    return event.get("status") == "newAlert"
+    return (
+        event.get("status") == "newAlert" and event.get("severity", "").lower() != "informational"
+    )
 
 
 def title(event):

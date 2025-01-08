@@ -1,0 +1,67 @@
+on:
+  workflow_dispatch:
+  pull_request:
+      branches:
+        - develop
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check_packs:
+    name: check packs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: step-security/harden-runner@0080882f6c36860b6ba35c610c98ce87d4e2f26f # v2.10.2
+        with:
+          disable-sudo: true
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            files.pythonhosted.org:443
+            github.com:443
+            pypi.org:443
+
+      - name: Checkout panther-analysis
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
+
+      - name: Set python version
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b #v5.3.0
+        with:
+          python-version: "3.11"
+
+      - name: Install panther_analysis_tool
+        run: pip install panther_analysis_tool
+
+      - name: Check packs
+        id: check-packs
+        run: |
+          # Get the output for the PR comment body
+          panther_analysis_tool check-packs 2> errors.txt || true
+          echo ::set-output name=errors::`cat errors.txt`
+
+      - name: Check packs (Exit Code)
+        run: |
+          exit $(panther_analysis_tool check-packs)
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v3
+        if: failure()
+        with:
+          mode: upsert
+          message: |
+            :scream:
+            looks like some things could be wrong with the packs
+            ```diff
+            ${{ steps.check-packs.outputs.errors }}
+            ```
+          comment-tag: check-packs
+
+      - name: Delete comment
+        uses: thollander/actions-comment-pull-request@v3
+        if: success()
+        with:
+          mode: delete
+          comment-tag: check-packs

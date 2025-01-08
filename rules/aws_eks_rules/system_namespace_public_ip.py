@@ -1,10 +1,11 @@
 from ipaddress import ip_address
 
-from panther_base_helpers import deep_get, eks_panther_obj_ref
+from panther_aws_helpers import eks_panther_obj_ref
 
 # Explicitly ignore eks:node-manager and eks:addon-manager
 #  which are run as Lambdas and originate from public IPs
 AMZ_PUBLICS = {"eks:addon-manager", "eks:node-manager"}
+
 
 # Alert if
 #   the username starts ( with system: or eks: )
@@ -21,12 +22,12 @@ def rule(event):
     if (
         p_eks.get("actor") in AMZ_PUBLICS
         and ":assumed-role/AWSWesleyClusterManagerLambda"
-        in deep_get(event, "user", "extra", "arn", default=["not found"])[0]
+        in event.deep_get("user", "extra", "arn", default=["not found"])[0]
     ):
         return False
     if (
         p_eks.get("actor").startswith("system:") or p_eks.get("actor").startswith("eks:")
-    ) and not ip_address(p_eks.get("sourceIPs")[0]).is_private:
+    ) and ip_address(p_eks.get("sourceIPs")[0]).is_global:
         return True
     return False
 
@@ -45,7 +46,7 @@ def title(event):
 
 def dedup(event):
     p_eks = eks_panther_obj_ref(event)
-    return f"{p_eks.get('p_source_label')}_eks_system_namespace_{p_eks.get('actor')}"
+    return f"{p_eks.get('p_source_label')}_eks_system_namespace_{p_eks.get('sourceIPs')[0]}"
 
 
 def alert_context(event):

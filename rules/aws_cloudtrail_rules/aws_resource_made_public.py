@@ -1,7 +1,7 @@
 import json
 
-from panther_base_helpers import aws_rule_context, deep_get
-from panther_default import aws_cloudtrail_success
+from panther_aws_helpers import aws_cloudtrail_success, aws_rule_context
+from panther_base_helpers import deep_get
 from policyuniverse.policy import Policy
 
 
@@ -70,8 +70,7 @@ def rule(event):
 
 def title(event):
     # TODO(): Update this rule to use data models
-    user = deep_get(event, "userIdentity", "userName") or deep_get(
-        event,
+    user = event.deep_get("userIdentity", "userName") or event.deep_get(
         "userIdentity",
         "sessionContext",
         "sessionIssuer",

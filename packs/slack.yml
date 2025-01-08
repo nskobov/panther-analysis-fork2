@@ -27,5 +27,6 @@ PackDefinition:
     - Slack.AuditLogs.UserPrivilegeEscalation
     - Slack.AuditLogs.UserPrivilegeChangedToUser
     # Globals used in these rules/policies
-    - panther_base_helpers
-    - panther_oss_helpers
+    - panther_slack_helpers
+    # Data Model
+    - Standard.Slack.AuditLogs

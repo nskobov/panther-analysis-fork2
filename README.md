@@ -1,5 +1,9 @@
 <p align="center">
-  <a href="https://panther.com"><img src=".img/panther-logo-github-highres.png" width=40% alt="Panther Logo"/></a>
+  <a href="https://panther.com"><picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".img/panther-logo-github-highres-light.png" width=75%>
+    <source media="(prefers-color-scheme: light)" srcset=".img/panther-logo-github-highres-dark.png" width=75%>
+    <img alt="Displays the dark Panther logo in light mode an the light Panther logo in dark mode.">
+  </picture></a>
 </p>
 
 <h3 align="center">Built-in Panther Detections</h3>
@@ -20,11 +24,12 @@ Panther is a modern SIEM built for security operations at scale.
 
 With Panther, teams can define detections as code and programmatically upload them to your Panther deployment. This repository contains all detections developed by the Panther Team and the Community.
 
-We welcome all contributions! Please read the [contributing guidelines](https://github.com/panther-labs/panther-analysis/blob/master/CONTRIBUTING.md) before submitting pull requests.
+We welcome all contributions! Please read the [contributing guidelines](https://github.com/panther-labs/panther-analysis/blob/main/CONTRIBUTING.md) before submitting pull requests.
 
 # Quick Start
 
 ## Clone the repository
+
 ```bash
 git clone git@github.com:panther-labs/panther-analysis.git
 cd panther-analysis
@@ -34,25 +39,30 @@ cd panther-analysis
 
 Each folder contains detections in the format of `<log/resource type>_<detecton_type>`:
 
-* **Rules** analyze [logs](https://docs.panther.com/data-onboarding/supported-logs) to detect malicious activity
-* **Policies** represent the desired secure state of a [resource](https://docs.panther.com/cloud-scanning) to detect security misconfigurations
-* **Scheduled rules** analyze output of periodically executed [SQL queries](https://docs.panther.com/data-analytics/example-queries)
+- **Rules** analyze [logs](https://docs.panther.com/data-onboarding/supported-logs) to detect malicious activity
+- **Policies** represent the desired secure state of a [resource](https://docs.panther.com/cloud-scanning) to detect security misconfigurations
+- **Scheduled rules** analyze output of periodically executed [SQL queries](https://docs.panther.com/data-analytics/example-queries)
 
 ## Configure your Python environment
 
 ```bash
+python3 -m pip install pipenv
+echo "PYTHON_BIN_PATH=\"$(python3 -m site --user-base)/bin\"" >> ~/.zprofile
+echo "export PATH=\"$PATH:$PYTHON_BIN_PATH\"" >> ~/.zprofile
+. ~/.zprofile
 make install
 pipenv shell # Optional, this will spawn a subshell containing pipenv environment variables. Running pipenv run before commands becomes optional after this step
-````
+```
 
-### Install dependencies and run your first test!
+### Install dependencies and run your first test
 
-```bash 
+```bash
 make install
 pipenv run panther_analysis_tool test --path rules/aws_cloudtrail_rules/
 ```
 
 ### Run detection tests
+
 ```bash
 pipenv run panther_analysis_tool test [-h] [--path PATH]
                                 [--filter KEY=VALUE [KEY=VALUE ...]
@@ -60,20 +70,25 @@ pipenv run panther_analysis_tool test [-h] [--path PATH]
 ```
 
 ### Test with a specific path
+
 ```bash
 pipenv run panther_analysis_tool test --path rules/cisco_umbrella_dns_rules
 ```
+
 ### Test by severity
+
 ```bash
 pipenv run panther_analysis_tool test --filter Severity=Critical
 ```
 
 ### Test by log type
+
 ```bash
 pipenv run panther_analysis_tool test --filter LogTypes=AWS.GuardDuty
 ```
 
 ### Create a zip file of detections
+
 ```bash
 pipenv run panther_analysis_tool zip [-h] [--path PATH] [--out OUT]
                                [--filter KEY=VALUE [KEY=VALUE ...]]
@@ -81,11 +96,13 @@ pipenv run panther_analysis_tool zip [-h] [--path PATH] [--out OUT]
 ```
 
 ### Zip all Critical severity detections
+
 ```bash
 pipenv run panther_analysis_tool zip --filter Severity=Critical
-````
+```
 
 ### Upload detections to your Panther instance
+
 ```bash
 # Note: Set your AWS access keys and region env variables before running the `upload` command
 
@@ -100,52 +117,64 @@ Global helper functions are defined in the `global_helpers` folder. This is a ha
 Additionally, groups of detections may be linked to multiple "Reports", which is a system for tracking frameworks like CIS, PCI, MITRE ATT&CK, or more.
 
 ## Using [Visual Studio Code](https://code.visualstudio.com/)
-If you are comfortable using the Visual Studio Code IDE, the `make vscode-config` command can configure VSCode to work with this repo. 
+
+If you are comfortable using the Visual Studio Code IDE, the `make vscode-config` command can configure VSCode to work with this repo.
 
 In addition to this command, you will need to install these vscode add-ons:
+
 1. [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
-1. [YAML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)
+2. [Black Formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
+3. [Pylint](https://marketplace.visualstudio.com/items?itemName=ms-python.pylint)
+4. [Bandit](https://marketplace.visualstudio.com/items?itemName=nwgh.bandit)
+5. [YAML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)
+
+You will also need Visual Studio's [code](https://code.visualstudio.com/docs/setup/mac#_launching-from-the-command-line) configured to open Visual Studio from your CLI.
 
 `make vscode-config` will configure:
+
 1. Configure VSCode to use the python virtual environment for this repository.
 1. Resolve local imports like global_helpers, which permits code completion via Intellisense/Pylance
 1. Creates two debugging targets, which will give you single-button push support for running `panther_analysis_tool test` through the debugger.
 1. Installs JSONSchema support for your custom panther-analysis schemas in the `schemas/` directory. This brings IDE hints about which fields are necessary for schemas/custom-schema.yml files.
 1. Installs JSONSchema support for panther-analysis rules in the `rules/` directory. This brings IDE hints about which fields are necessary for rules/my-rule.yml files.
-
+1. Configures `Black` and `isort` settings for auto-formatting on save (thus reducing the need to run `make fmt` on all files)
+1. Configures `pylint` settings for linting when changes are made
+   - Ensure that `"pylint.lintOnChange": true` is present in the User-level VSCode settings (`Cmd+Shift+P` -> `Preferences: Open Settings (JSON)`)
+1. Configures `Bandit` settings for linting when files are opened
 
 ```shell
 user@computer:panther-analysis: make vscode-config
-
 ```
 
 ## Using Docker
 
 To use Docker, you can run some of the `make` commands provided to run common panther-analysis workflows. Start by building the container, then you can run any command you want from the image created. If you would like to run a different command, follow the pattern in the Makefile.
-```
+
+```bash
 make docker-build
 make docker-test
 make docker-lint
 ```
 
-Please note that you only need to rebuild the container if you update your `Pipfile.lock` changes, because the dependencies are install when the image is built. The subsequent test and lint commands are run in the image by mounting the current file system directory, so it is using your local file system. 
+Please note that you only need to rebuild the container if you update your `Pipfile.lock` changes, because the dependencies are install when the image is built. The subsequent test and lint commands are run in the image by mounting the current file system directory, so it is using your local file system.
 
 ## Using Windows
 
-If you are on a Windows machine, you can use the following instructions to perform the standard panther-analysis workflow. 
+If you are on a Windows machine, you can use the following instructions to perform the standard panther-analysis workflow.
 
 1. Install [docker desktop](https://docs.docker.com/desktop/install/windows-install/) for Windows.
 2. Using `make` is recommended. If you would like to use `make`, first install [chocolately](https://chocolatey.org/install), a standard Windows packaging manager.
 3. With chocolately, install the make command:
-```shell
-choco install make
-```
-4. `make` should now be installed and added to your PATH. Try running a `make docker-build` to get started. 
 
+   ```shell
+   choco install make
+   ```
+
+4. `make` should now be installed and added to your PATH. Try running a `make docker-build` to get started.
 
 # Writing Detections
 
-*For a full reference on writing detections, read our [guide](https://docs.panther.com/writing-detections)!*
+_For a full reference on writing detections, read our [guide](https://docs.panther.com/writing-detections)!_
 
 Each detection has a Python file (`.py`) and a metadata file (`.yml`) of the same name (in the same location), for example:
 
@@ -177,7 +206,7 @@ LogTypes:
 Tags:
   - Identity & Access Management
 Severity: Medium
-...
+---
 Threshold: 5
 DedupPeriodMinutes: 15
 SummaryAttributes:
@@ -186,23 +215,20 @@ SummaryAttributes:
   - displayMessage
   - p_any_ip_addresses
 Tests:
-  -
-    Name: Failed login
+  - Name: Failed login
     ExpectedResult: true
     Log:
       {
         "eventType": "user.session.start",
-        "actor": {
-          "id": "00uu1uuuuIlllaaaa356",
-          "type": "User",
-          "alternateId": "panther_labs@acme.io",
-          "displayName": "Run Panther"
-        },
+        "actor":
+          {
+            "id": "00uu1uuuuIlllaaaa356",
+            "type": "User",
+            "alternateId": "panther_labs@acme.io",
+            "displayName": "Run Panther",
+          },
         "request": {},
-        "outcome": {
-          "result": "FAILURE",
-          "reason": "VERIFICATION_ERROR"
-        }
+        "outcome": { "result": "FAILURE", "reason": "VERIFICATION_ERROR" },
       }
 ```
 
@@ -213,7 +239,6 @@ Customizing detections-as-code is one of the most powerful capabilities Panther 
 Upon [tagged releases](https://github.com/panther-labs/panther-analysis/releases), you can pull upstream changes from this public repo.
 
 Follow the instructions [here](https://docs.panther.com/panther-developer-workflows/ci-cd/detections-repo) to get started with either a public fork or a private cloned repo to host your custom detection content.
-
 
 ## Getting Updates
 
@@ -228,12 +253,20 @@ git remote add panther-upstream git@github.com:panther-labs/panther-analysis.git
 # Pull in the latest changes
 # Note: You may need to use the `--allow-unrelated-histories`
 #       flag if you did not maintain the history originally
-git pull panther-upstream master
+git pull panther-upstream main
 
 # Push the latest changes up to your forked repo and merge them
 git push
 ```
 
+# Remove Deprecated Formatters
+
+Previously, Node, NPM and Prettier were used for formatting Markdown and YAML files; these are no longer in use.
+
+Depending on how Node is managed, it will need to be uninstalled or removed if it is no longer needed elsewhere. Refer to your system/package manager's documentation for instructions on removing Node.
+
+Otherwise, running `npm uninstall prettier` will remove Prettier.
+
 # License
 
-This repository is licensed under the AGPL-3.0 [license](https://github.com/panther-labs/panther-analysis/blob/master/LICENSE).
+This repository is licensed under [Apache License, Version 2.0](https://github.com/panther-labs/panther-analysis/blob/main/LICENSE.txt).

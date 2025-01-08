@@ -1,6 +1,6 @@
 AnalysisType: pack
 PackID: PantherManaged.Crowdstrike
-Description: Group of all Crowdstrike detections
+Description: Group of all Crowdstrike FDR detections
 PackDefinition:
   IDs:
     - Crowdstrike.Detection.passthrough
@@ -14,13 +14,15 @@ PackDefinition:
     - Crowdstrike.Reverse.Shell.Tool.Executed
     - Crowdstrike.WMI.Query.Detection
     - Crowdstrike.Base64EncodedArgs
-    - Crowdstrike.FDR.LOLBAS
     - Standard.DNSBase64
     - Crowdstrike.Macos.Add.Trusted.Cert
     - Crowdstrike.Macos.Plutil.Usage
     - Crowdstrike.Macos.Osascript.Administrator
     # Globals used in these detections
     - panther_base_helpers
+    - panther_crowdstrike_fdr_helpers
     # Data models
+    - Standard.AWS.VPCDns
+    - Standard.CiscoUmbrella.DNS
     - Standard.Crowdstrike.FDR
 DisplayName: "Panther Crowdstrike Pack"

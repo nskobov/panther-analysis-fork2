@@ -2,19 +2,14 @@ from datetime import datetime, timedelta
 from json import dumps, loads
 
 import panther_event_type_helpers as event_type
-from panther_base_helpers import deep_get
+from panther_base_helpers import deep_get, resolve_timestamp_string
+from panther_detection_helpers.caching import get_string_set, put_string_set
+from panther_ipinfo_helpers import km_between_ipinfo_loc
 from panther_lookuptable_helpers import LookupTableMatches
-from panther_oss_helpers import (
-    get_string_set,
-    km_between_ipinfo_loc,
-    put_string_set,
-    resolve_timestamp_string,
-)
 
-EVENT_CITY_TRACKING = {}
-CACHE_KEY = None
-IS_VPN = False
-IS_APPLE_PRIVATE_RELAY = False
+# pylint: disable=global-variable-undefined
+
+SATELLITE_NETWORK_ASNS = ["AS22351"]
 
 
 def gen_key(event):
@@ -24,7 +19,7 @@ def gen_key(event):
 
     The data_model needs to answer to "actor_user"
     """
-    rule_name = deep_get(event, "p_source_label")
+    rule_name = event.get("p_source_label")
     actor = event.udm("actor_user")
     if None in [rule_name, actor]:
         return None
@@ -33,17 +28,24 @@ def gen_key(event):
 
 def rule(event):
     # too-many-return-statements due to error checking
-    # pylint: disable=global-statement,too-many-return-statements,too-complex
+    # pylint: disable=global-statement,too-many-return-statements,too-complex,too-many-statements
     global EVENT_CITY_TRACKING
     global CACHE_KEY
     global IS_VPN
-    global IS_APPLE_PRIVATE_RELAY
+    global IS_PRIVATE_RELAY
+    global IS_SATELLITE_NETWORK
+
+    EVENT_CITY_TRACKING = {}
+    CACHE_KEY = ""
+    IS_VPN = False
+    IS_PRIVATE_RELAY = False
+    IS_SATELLITE_NETWORK = False
 
     # Only evaluate successful logins
     if event.udm("event_type") != event_type.SUCCESSFUL_LOGIN:
         return False
 
-    p_event_datetime = resolve_timestamp_string(deep_get(event, "p_event_time"))
+    p_event_datetime = resolve_timestamp_string(event.get("p_event_time"))
     if p_event_datetime is None:
         # we couldn't go from p_event_time to a datetime object
         # we need to do this in order to make later time comparisons generic
@@ -67,11 +69,11 @@ def rule(event):
     if None in new_login_stats.values():
         return False
 
-    ## Check for VPN or Apple Private Relay
+    ## Check for VPN or Private Relay
     ipinfo_privacy = deep_get(src_ip_enrichments, "ipinfo_privacy")
     if ipinfo_privacy is not None:
-        ###  Do VPN/Apple private relay
-        IS_APPLE_PRIVATE_RELAY = all(
+        ###  Do VPN/private relay
+        IS_PRIVATE_RELAY = all(
             [
                 deep_get(ipinfo_privacy, "relay", default=False),
                 deep_get(ipinfo_privacy, "service", default="") == "Apple Private Relay",
@@ -89,11 +91,18 @@ def rule(event):
                 deep_get(ipinfo_privacy, "service", default="") != "",
             ]
         )
-    if IS_VPN or IS_APPLE_PRIVATE_RELAY:
+    # Some satellite networks used during plane travel don't always
+    #   register properly as VPN's, so we have a separate check here.
+    IS_SATELLITE_NETWORK = (
+        deep_get(src_ip_enrichments, "ipinfo_asn", "asn", default="") in SATELLITE_NETWORK_ASNS
+    )
+
+    if any((IS_VPN, IS_PRIVATE_RELAY, IS_SATELLITE_NETWORK)):
         new_login_stats.update(
             {
                 "is_vpn": f"{IS_VPN}",
-                "is_apple_priv_relay": f"{IS_APPLE_PRIVATE_RELAY}",
+                "is_apple_priv_relay": f"{IS_PRIVATE_RELAY}",
+                "is_satellite_network": f"{IS_SATELLITE_NETWORK}",
                 "service_name": f"{deep_get(ipinfo_privacy, 'service', default='<NO_SERVICE>')}",
                 "NOTE": "APPLE PRIVATE RELAY AND VPN LOGINS ARE NOT CACHED FOR COMPARISON",
             }
@@ -101,19 +110,20 @@ def rule(event):
 
     # Generate a unique cache key for each user per log type
     CACHE_KEY = gen_key(event)
-    if CACHE_KEY is None:
+    if not CACHE_KEY:
         # We can't save without a cache key
         return False
     # Retrieve the prior login info from the cache, if any
     last_login = get_string_set(CACHE_KEY)
     # If we haven't seen this user login in the past 1 day,
     # store this login for future use and don't alert
-    if not last_login and not IS_APPLE_PRIVATE_RELAY and not IS_VPN:
-        put_string_set(
-            key=CACHE_KEY,
-            val=[dumps(new_login_stats)],
-            epoch_seconds=int((datetime.utcnow() + timedelta(days=1)).timestamp()),
-        )
+    if not last_login:
+        if not any((IS_VPN, IS_PRIVATE_RELAY, IS_SATELLITE_NETWORK)):
+            put_string_set(
+                key=CACHE_KEY,
+                val=[dumps(new_login_stats)],
+                epoch_seconds=int((datetime.utcnow() + timedelta(days=1)).timestamp()),
+            )
         return False
     # Load the last login from the cache into an object we can compare
     # str check is in place for unit test mocking
@@ -135,11 +145,13 @@ def rule(event):
     speed = distance / time_delta
 
     # Calculation is complete, write the current login to the cache
-    put_string_set(
-        key=CACHE_KEY,
-        val=[dumps(new_login_stats)],
-        epoch_seconds=int((datetime.utcnow() + timedelta(days=1)).timestamp()),
-    )
+    # Only if non-VPN non-relay!
+    if not IS_PRIVATE_RELAY and not IS_VPN:
+        put_string_set(
+            key=CACHE_KEY,
+            val=[dumps(new_login_stats)],
+            epoch_seconds=int((datetime.utcnow() + timedelta(days=1)).timestamp()),
+        )
 
     EVENT_CITY_TRACKING["previous"] = last_login_stats
     EVENT_CITY_TRACKING["current"] = new_login_stats
@@ -153,7 +165,7 @@ def rule(event):
 
 def title(event):
     #
-    log_source = deep_get(event, "p_source_label", default="<NO_SOURCE_LABEL>")
+    log_source = event.get("p_source_label", "<NO_SOURCE_LABEL>")
     old_city = deep_get(EVENT_CITY_TRACKING, "previous", "city", default="<NO_PREV_CITY>")
     new_city = deep_get(EVENT_CITY_TRACKING, "current", "city", default="<NO_PREV_CITY>")
     speed = deep_get(EVENT_CITY_TRACKING, "speed", default="<NO_SPEED>")
@@ -178,7 +190,7 @@ def alert_context(event):
 
 
 def severity(_):
-    if IS_VPN or IS_APPLE_PRIVATE_RELAY:
+    if any((IS_VPN, IS_PRIVATE_RELAY, IS_SATELLITE_NETWORK)):
         return "INFO"
     # time = distance/speed
     distance = deep_get(EVENT_CITY_TRACKING, "distance", default=None)

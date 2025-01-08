@@ -5,5 +5,9 @@ PackDefinition:
   IDs:
     - Atlassian.User.LoggedInAsUser
     # Globals used in these detections
-    - panther_base_helpers
+
+
+    - panther_event_type_helpers
+    # Data Model
+    - Standard.Atlassian.Audit
 DisplayName: "Panther Atlassian Pack"

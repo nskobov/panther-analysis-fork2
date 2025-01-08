@@ -1,4 +1,4 @@
-from panther_base_helpers import (
+from panther_crowdstrike_fdr_helpers import (
     crowdstrike_detection_alert_context,
     get_crowdstrike_field,
 )

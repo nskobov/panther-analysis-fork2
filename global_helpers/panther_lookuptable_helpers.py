@@ -3,6 +3,8 @@ from collections.abc import Mapping, Sequence
 from panther_base_helpers import deep_get
 
 ENRICHMENT_KEY = "p_enrichment"
+IGNORE_ENRICHMENTS = "p_any_"
+
 
 # pylint: disable=too-few-public-methods
 class LookupTableMatches:
@@ -11,13 +13,13 @@ class LookupTableMatches:
         self._p_matched = {}
 
     def _register(self, event, lookuptable_name: str):
-        self.lut_matches = deep_get(event, ENRICHMENT_KEY, lookuptable_name)
+        self.lut_matches = event.deep_get(ENRICHMENT_KEY, lookuptable_name)
 
     def _lookup(self, match_field: str, *keys) -> list or str:
         match = deep_get(self.lut_matches, match_field)
         if not match:
             return None
-        if isinstance(match, list):
+        if isinstance(match, Sequence) and not isinstance(match, str):
             return [deep_get(match_value, *keys) if match_value else None for match_value in match]
         return deep_get(match, *keys)
 
@@ -25,7 +27,7 @@ class LookupTableMatches:
     def p_matched(self):
         return self._p_matched
 
-    def p_matches(self, event: dict, p_match: str = "") -> dict:
+    def p_matches(self, event, p_match: str = "") -> dict:
         """Collect enrichments by searching for a value match in the p_match field
 
         Parameters:
@@ -39,6 +41,8 @@ class LookupTableMatches:
         event = event or {}
         matched_items = {}
         for lut_name in deep_get(event, ENRICHMENT_KEY, default={}).keys():
+            if lut_name.startswith(IGNORE_ENRICHMENTS):
+                continue
             for en_values in deep_get(event, ENRICHMENT_KEY, lut_name, default={}).values():
                 if isinstance(en_values, Sequence):
                     for val in en_values:

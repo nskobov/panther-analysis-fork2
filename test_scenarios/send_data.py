@@ -1,3 +1,5 @@
+#!/usr/bin/env -S python3
+
 import argparse
 import gzip
 import json
@@ -27,7 +29,7 @@ def main(args):
         return False
 
     with open(args.file) as file:
-        data = yaml.load(file, Loader=yaml.FullLoader)
+        data = yaml.safe_load(file, Loader=yaml.FullLoader)
 
     # ensure UTC
     args.panther_compromise_datetime = args.panther_compromise_datetime.replace(tzinfo=timezone.utc)
@@ -201,8 +203,8 @@ def get_event_time(log_type):
         return {"attrs": ["published"], "format": "%Y-%m-%dT%H:%M:%S.%fZ"}
     if log_type == "AWS.S3ServerAccess":  # [03/Nov/2020:04:43:07 +0000]
         return {"index": 2, "format": "[%d/%b/%Y:%H:%M:%S"}
-    if log_type == 'Slack.AccessLogs': # 2021-06-12 21:30:47.000Z
-        return {'attrs': ['date_first'], 'format': '%Y-%m-%d %H:%M:%S.%fZ'}
+    if log_type == "Slack.AccessLogs":  # 2021-06-12 21:30:47.000Z
+        return {"attrs": ["date_first"], "format": "%Y-%m-%d %H:%M:%S.%fZ"}
     raise Exception("unknown logType: " + log_type)
 
 
